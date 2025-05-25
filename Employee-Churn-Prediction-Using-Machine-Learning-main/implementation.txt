@@ -1,0 +1,58 @@
+4.2 Implementation
+
+Creating an employee churn prediction system involves several steps, including data preprocessing, model training, and deploying the model with Streamlit. Below is a simple example to get you started. Keep in mind that this is a basic demonstration, and you may need to enhance it based on your specific requirements and dataset.
+
+Step 1: Install necessary libraries
+```bash
+pip install streamlit pandas scikit-learn xgboost matplotlib seaborn
+```
+
+Step 2: Create a Streamlit web application in `one_app.py`.
+```python
+import streamlit as st
+import pandas as pd
+import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+st.set_page_config(page_title="WORKFORCE INSIGHTS", page_icon="🔎")
+```
+
+Step 3: Prepare the dataset and preprocess it.
+```python
+data = pd.read_csv('HR_Dataset.csv')
+data.rename(columns={'Departments ':'departments'}, inplace=True)
+data = data.drop_duplicates()
+```
+
+Step 4: Train and save the model.
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
+from sklearn.linear_model import LogisticRegression
+import pickle
+
+X = data.drop(columns=['left'])
+y = data['left']
+
+preprocessor = ColumnTransformer(transformers=[
+    ('num', StandardScaler(), ['satisfaction_level', 'last_evaluation', 'number_project', 'average_montly_hours', 'time_spend_company', 'Work_accident', 'promotion_last_5years']),
+    ('nominal', OneHotEncoder(), ['departments']),
+    ('ordinal', OrdinalEncoder(), ['salary'])
+])
+
+pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('model', LogisticRegression())
+])
+
+pipeline.fit(X, y)
+
+with open('pipeline.pkl', 'wb') as f:
+    pickle.dump(pipeline, f)
+```
+
+Step 5: Run the Streamlit application.
+```bash
+streamlit run one_app.py
